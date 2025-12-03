@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"strconv"
 
 	"github.com/chrismcd1/aoc2025/utils"
@@ -36,24 +37,30 @@ func part1(filename string) (int, error) {
 
 	result := 0
 	for _, row := range items {
-		result += maxBattery(*row)
+		result += maxBattery(row.values)
 	}
 
 	return result, nil
 }
 
-func maxBattery(row Row) int {
+func maxBattery(row []int) int {
 	var result int
-	for i, one := range row.values {
-		for j, two := range row.values {
-			if i != j && i < j {
-				value := one*10 + two
-				if value > result {
-					result = value
-				}
+	selected := make([]int, 12)
+	// What if we assume that the first 12 are good, and then work from there?
+	// I think we need to find the higest first
+	securedIndexes := 0
+	for target := 0; target < 12; target++ {
+		for i := securedIndexes; i < len(row)-(11-target); i++ {
+			rowValue := row[i]
+			if rowValue > selected[target] {
+				selected[target] = rowValue
+				securedIndexes = i + 1
 			}
 		}
 	}
-	fmt.Printf("Got result %d for row %v\n", result, row)
+	for i, val := range selected {
+		result += val * int(math.Pow10(11-i))
+	}
+	// fmt.Printf("Selected %v and got result %d for row %v\n", selected, result, row)
 	return result
 }
