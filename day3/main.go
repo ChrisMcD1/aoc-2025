@@ -44,20 +44,21 @@ func part1(filename string) (int, error) {
 }
 
 func maxBattery(row []int) int {
-	var result int
 	selected := make([]int, 12)
-	// What if we assume that the first 12 are good, and then work from there?
-	// I think we need to find the higest first
-	securedIndexes := 0
-	for target := 0; target < 12; target++ {
-		for i := securedIndexes; i < len(row)-(11-target); i++ {
-			rowValue := row[i]
-			if rowValue > selected[target] {
-				selected[target] = rowValue
-				securedIndexes = i + 1
+	availableIndex := 0
+	for selectedIndex := range 12 {
+		maximumIndex := len(row) - (12 - selectedIndex)
+		// Always start in the next free index after the one we gave to the previous digit
+		// Stop when we would otherwise run out of digits to assign to the yet-to-be-selected
+		for i := availableIndex; i <= maximumIndex; i++ {
+			if row[i] > selected[selectedIndex] {
+				selected[selectedIndex] = row[i]
+				availableIndex = i + 1
 			}
 		}
 	}
+
+	var result int
 	for i, val := range selected {
 		result += val * int(math.Pow10(11-i))
 	}
