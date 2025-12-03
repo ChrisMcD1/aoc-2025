@@ -1,0 +1,59 @@
+package main
+
+import (
+	"fmt"
+	"strconv"
+
+	"github.com/chrismcd1/aoc2025/utils"
+)
+
+func main() {
+	fmt.Println("Hello World Day 1")
+	solution, err := part1("./full_input.txt")
+	if err != nil {
+		fmt.Println("Error: %w", err)
+	}
+	fmt.Println("The solution is:")
+	fmt.Printf("%d", solution)
+}
+
+type Row struct {
+	values []int
+}
+
+func part1(filename string) (int, error) {
+	items, err := utils.ReadAndParse(filename, func(s string) (*Row, error) {
+		var values []int
+		for _, char := range s {
+			value, _ := strconv.Atoi(string(char))
+			values = append(values, value)
+		}
+		return &Row{values}, nil
+	})
+	if err != nil {
+		return 0, err
+	}
+
+	result := 0
+	for _, row := range items {
+		result += maxBattery(*row)
+	}
+
+	return result, nil
+}
+
+func maxBattery(row Row) int {
+	var result int
+	for i, one := range row.values {
+		for j, two := range row.values {
+			if i != j && i < j {
+				value := one*10 + two
+				if value > result {
+					result = value
+				}
+			}
+		}
+	}
+	fmt.Printf("Got result %d for row %v\n", result, row)
+	return result
+}
