@@ -34,26 +34,12 @@ func part1(filename string) (int, error) {
 	}
 	// Loop through each row, keeping track of a set of currently active beams
 	for _, line := range fileData[1:] {
-		fmt.Printf("Beginning line %v with beams %v\n", line, beams)
 		newBeams := make(map[int]int)
 		for beam, numberOfBeams := range beams {
 			if line[beam] == '^' {
-				_, ok := newBeams[beam-1]
-				if !ok {
-					newBeams[beam-1] = 0
-				}
 				newBeams[beam-1] += numberOfBeams
-
-				_, ok = newBeams[beam+1]
-				if !ok {
-					newBeams[beam+1] = 0
-				}
 				newBeams[beam+1] += numberOfBeams
 			} else if line[beam] == '.' {
-				_, ok := newBeams[beam]
-				if !ok {
-					newBeams[beam] = 0
-				}
 				newBeams[beam] += numberOfBeams
 			}
 		}
