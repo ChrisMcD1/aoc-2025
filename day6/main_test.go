@@ -8,7 +8,7 @@ func TestPart1(t *testing.T) {
 		if err != nil {
 			t.Errorf("Got back an error! %s", err.Error())
 		}
-		if got != 4277556 {
+		if got != 3263827 {
 			t.Errorf("Did not get the expected response. Got %d", got)
 		}
 	})

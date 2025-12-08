@@ -21,7 +21,8 @@ func main() {
 type Operation int
 
 const (
-	Add Operation = iota
+	None Operation = iota
+	Add
 	Multiply
 )
 
@@ -32,34 +33,47 @@ type Column struct {
 
 func part1(filename string) (int, error) {
 	lines, _ := utils.ReadLines(filename)
-	dataRowsLength := len(lines)
-	width := len(splitWhiteSpace(lines[0]))
-	columns := make([]Column, width)
+	fileData := make([][]rune, len(lines))
 	for i, line := range lines {
-		if i == dataRowsLength-1 {
-			for j, val := range splitWhiteSpace(line) {
-				column := columns[j]
-				if val == "*" {
-					column.operation = Multiply
-				} else if val == "+" {
-					column.operation = Add
-				} else {
-					return 0, fmt.Errorf("Not a valid operation %s", val)
-				}
-				columns[j] = column
-			}
-		} else {
-			for j, val := range splitWhiteSpace(line) {
-				column := columns[j]
-				valAsInt, err := strconv.Atoi(val)
-				if err != nil {
-					return 0, fmt.Errorf("Not a valid number %w", err)
-				}
-				column.values = append(column.values, valAsInt)
-				columns[j] = column
-			}
+		fileData[i] = make([]rune, len(line))
+		for j, char := range line {
+			fileData[i][j] = char
 		}
 	}
+	var columns []Column
+	columnsLen := len(fileData[0])
+	// scanning horizontal right to left until we find an empty column, and then we start a new
+	var currentColumn Column
+	for j := columnsLen - 1; j >= 0; j-- {
+		var currentNumber []rune
+		var currentOperation Operation
+		for i := 0; i < len(fileData)-1; i++ {
+			if fileData[i][j] != ' ' {
+				currentNumber = append(currentNumber, fileData[i][j])
+			}
+		}
+		targetForOperation := fileData[len(fileData)-1][j]
+		if targetForOperation == '+' {
+			currentOperation = Add
+		} else if targetForOperation == '*' {
+			currentOperation = Multiply
+		}
+		if len(currentNumber) != 0 {
+			parsedNum, err := strconv.Atoi(string(currentNumber))
+			if err != nil {
+				return 0, nil
+			}
+			currentColumn.values = append(currentColumn.values, parsedNum)
+		}
+		if currentOperation != None {
+			currentColumn.operation = currentOperation
+		}
+		if currentOperation == None && len(currentNumber) == 0 {
+			columns = append(columns, currentColumn)
+			currentColumn = Column{}
+		}
+	}
+	columns = append(columns, currentColumn)
 
 	result := 0
 	for _, column := range columns {
