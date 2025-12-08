@@ -25,38 +25,45 @@ func part1(filename string) (int, error) {
 			fileData[i][j] = char
 		}
 	}
-	beams := make(map[int]bool)
+	// A map from beamIndex to number of shared beams
+	beams := make(map[int]int)
 	for i, val := range fileData[0] {
 		if val == 'S' {
-			beams[i] = true
+			beams[i] = 1
 		}
 	}
-	splitCount := 0
 	// Loop through each row, keeping track of a set of currently active beams
 	for _, line := range fileData[1:] {
 		fmt.Printf("Beginning line %v with beams %v\n", line, beams)
-		newBeams := make(map[int]bool)
-		for beam, ok := range beams {
-			if !ok {
-				continue
-			}
+		newBeams := make(map[int]int)
+		for beam, numberOfBeams := range beams {
 			if line[beam] == '^' {
-				splitCount++
-				newBeams[beam-1] = true
-				newBeams[beam+1] = true
+				_, ok := newBeams[beam-1]
+				if !ok {
+					newBeams[beam-1] = 0
+				}
+				newBeams[beam-1] += numberOfBeams
+
+				_, ok = newBeams[beam+1]
+				if !ok {
+					newBeams[beam+1] = 0
+				}
+				newBeams[beam+1] += numberOfBeams
 			} else if line[beam] == '.' {
-				newBeams[beam] = true
+				_, ok := newBeams[beam]
+				if !ok {
+					newBeams[beam] = 0
+				}
+				newBeams[beam] += numberOfBeams
 			}
 		}
 		beams = newBeams
 	}
 
 	result := 0
-	for _, ok := range beams {
-		if ok {
-			result++
-		}
+	for _, beamCount := range beams {
+		result += beamCount
 	}
 
-	return splitCount, nil
+	return result, nil
 }
